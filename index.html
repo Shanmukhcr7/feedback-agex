@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Feedback | Age-X</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0f172a;
+            color: #f8fafc;
+            overflow: hidden;
+            touch-action: manipulation;
+        }
+
+        .glass-card {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* The Audio-Style Slider Track */
+        .slider-track {
+            height: 72px;
+            background: #1e293b;
+            border-radius: 20px;
+            position: relative;
+            cursor: pointer;
+            border: 2px solid #334155;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+        }
+
+        .slider-fill {
+            height: 100%;
+            width: 50%;
+            background: linear-gradient(90deg, #6366f1 0%, #a855f7 100%);
+            border-radius: 18px 0 0 18px;
+            position: relative;
+            transition: width 0.1s ease-out, background 0.3s ease;
+        }
+
+        /* The Draggable Knob Indicator */
+        .slider-knob {
+            position: absolute;
+            right: -16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 48px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.6);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 3px;
+        }
+
+        .slider-knob span {
+            width: 2px;
+            height: 12px;
+            background: #cbd5e1;
+            border-radius: 1px;
+        }
+
+        /* Pulsing hint to show interactivity */
+        .drag-hint {
+            animation: bounce-x 1.5s infinite;
+        }
+
+        @keyframes bounce-x {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(10px); }
+        }
+
+        .rating-number {
+            text-shadow: 0 0 15px rgba(168, 85, 247, 0.5);
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .rating-number.pop {
+            transform: scale(1.4);
+        }
+
+        /* Mobile specific spacing */
+        @media (max-width: 480px) {
+            .mobile-bottom-pad { padding-bottom: 2rem; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+    <div class="w-full max-w-md">
+        
+        <!-- LOADING OVERLAY -->
+        <div id="loading-overlay" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center flex-col">
+            <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+        </div>
+
+        <!-- FORM CARD -->
+        <div id="main-card" class="glass-card rounded-[2.5rem] p-8 shadow-2xl hidden">
+            
+            <header class="text-center mb-10">
+                <h1 class="text-3xl font-extrabold tracking-tight mb-2">Age-X</h1>
+                <p class="text-slate-400 text-sm">Rate your experience!</p>
+            </header>
+
+            <div id="feedback-form" class="space-y-10 mobile-bottom-pad">
+                
+                <!-- Name Field -->
+                <div class="space-y-3">
+                    <label class="block text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500 ml-1">Your Name</label>
+                    <input type="text" id="user-name" placeholder="Who are you rating?" 
+                        class="w-full bg-slate-800/80 border-2 border-slate-700/50 rounded-2xl px-6 py-4 text-lg focus:border-indigo-500 focus:bg-slate-800 transition-all outline-none">
+                </div>
+
+                <!-- NEW: PROMINENT VOLUME SLIDER -->
+                <div class="space-y-6">
+                    <div class="flex flex-col items-center">
+                        <span id="rating-display" class="rating-number text-7xl font-black text-white">5</span>
+                        <span id="rating-label" class="text-indigo-400 font-bold uppercase text-xs tracking-widest mt-2">Good</span>
+                    </div>
+
+                    <div class="relative pt-4">
+                        <!-- Drag Hint Icon -->
+                        <div id="hint-icon" class="drag-hint absolute -top-2 left-1/2 -translate-x-1/2 flex items-center gap-2 text-slate-500 transition-opacity duration-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+                            </svg>
+                            <span class="text-[10px] font-bold">SLIDE ME</span>
+                            <svg xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                            </svg>
+                        </div>
+
+                        <div id="slider-track" class="slider-track">
+                            <div id="slider-fill" class="slider-fill">
+                                <div class="slider-knob">
+                                    <span></span>
+                                    <span></span>
+                                    <span></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button id="submit-btn" class="w-full py-5 bg-indigo-600 hover:bg-indigo-500 text-white font-black rounded-2xl shadow-xl shadow-indigo-500/30 transform active:scale-95 transition-all">
+                    SUBMIT FEEDBACK
+                </button>
+            </div>
+
+            <!-- SUCCESS -->
+            <div id="success-screen" class="hidden text-center py-12">
+                <div class="w-24 h-24 bg-emerald-500/10 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="w-12 h-12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <h2 class="text-3xl font-black mb-2 text-white">Submitted!</h2>
+                <p class="text-slate-400">Thanks for helping us grow.</p>
+            </div>
+
+            <!-- ALREADY SUBMITTED -->
+            <div id="blocked-screen" class="hidden text-center py-12">
+                <h2 class="text-2xl font-bold mb-2">One entry only!</h2>
+                <p class="text-slate-400">You've already submitted from this device.</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDOqpXPdf4_lEk3q7YuF11ga0_KujOcqiw",
+            authDomain: "resume-generator-50457.firebaseapp.com",
+            projectId: "resume-generator-50457",
+            storageBucket: "resume-generator-50457.firebasestorage.app",
+            messagingSenderId: "74614400062",
+            appId: "1:74614400062:web:ad4facc9ce66eb25295d6f",
+            measurementId: "G-PE52W57638"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        const appId = "hackathon-feedback-v3";
+        const SUBMISSION_KEY = `submitted_${appId}`;
+        let currentRating = 5;
+
+        // --- DOM ---
+        const track = document.getElementById('slider-track');
+        const fill = document.getElementById('slider-fill');
+        const display = document.getElementById('rating-display');
+        const label = document.getElementById('rating-label');
+        const hint = document.getElementById('hint-icon');
+
+        const labels = ["Awful", "Bad", "Poor", "Meh", "Okay", "Good", "Great", "Nice", "Superb", "Amazing", "Perfect!"];
+
+        function updateSlider(e) {
+            const rect = track.getBoundingClientRect();
+            let clientX = e.clientX || (e.touches ? e.touches[0].clientX : 0);
+            let x = clientX - rect.left;
+            let percentage = Math.max(0, Math.min(100, (x / rect.width) * 100));
+            
+            let newRating = Math.round(percentage / 10);
+            
+            if(newRating !== currentRating) {
+                currentRating = newRating;
+                fill.style.width = `${currentRating * 10}%`;
+                display.innerText = currentRating;
+                label.innerText = labels[currentRating];
+                
+                // Animation pop
+                display.classList.remove('pop');
+                void display.offsetWidth; // trigger reflow
+                display.classList.add('pop');
+
+                // Color shift logic
+                if(currentRating <= 3) fill.style.background = 'linear-gradient(90deg, #f43f5e 0%, #fb923c 100%)';
+                else if(currentRating <= 7) fill.style.background = 'linear-gradient(90deg, #6366f1 0%, #a855f7 100%)';
+                else fill.style.background = 'linear-gradient(90deg, #10b981 0%, #34d399 100%)';
+                
+                // Hide hint on first move
+                hint.style.opacity = '0';
+            }
+        }
+
+        let dragging = false;
+        const start = (e) => { dragging = true; updateSlider(e); };
+        const end = () => { dragging = false; };
+        const move = (e) => { if(dragging) { e.preventDefault(); updateSlider(e); } };
+
+        track.addEventListener('mousedown', start);
+        track.addEventListener('touchstart', start, {passive: false});
+        window.addEventListener('mousemove', move);
+        window.addEventListener('touchmove', move, {passive: false});
+        window.addEventListener('mouseup', end);
+        window.addEventListener('touchend', end);
+
+        // --- FIREBASE ---
+        async function init() {
+            try {
+                await signInAnonymously(auth);
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        document.getElementById('loading-overlay').classList.add('hidden');
+                        document.getElementById('main-card').classList.remove('hidden');
+                        if (localStorage.getItem(SUBMISSION_KEY)) {
+                            document.getElementById('feedback-form').classList.add('hidden');
+                            document.getElementById('blocked-screen').classList.remove('hidden');
+                        }
+                    }
+                });
+            } catch (err) { showError(); }
+        }
+
+        document.getElementById('submit-btn').onclick = async () => {
+            const name = document.getElementById('user-name').value.trim();
+            if (!name) return alert("Please enter the name first!");
+
+            document.getElementById('submit-btn').disabled = true;
+            document.getElementById('submit-btn').innerText = "SENDING...";
+
+            try {
+                await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'feedback'), {
+                    name, rating: currentRating, timestamp: serverTimestamp(),
+                    deviceId: localStorage.getItem('device_id') || Math.random().toString(36).substr(2, 9)
+                });
+                localStorage.setItem(SUBMISSION_KEY, 'true');
+                document.getElementById('feedback-form').classList.add('hidden');
+                document.getElementById('success-screen').classList.remove('hidden');
+            } catch (e) {
+                alert("Error: " + e.message);
+                document.getElementById('submit-btn').disabled = false;
+            }
+        };
+
+        init();
+    </script>
+</body>
+</html>
